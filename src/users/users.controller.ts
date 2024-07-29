@@ -1,31 +1,28 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Patch,
   Post,
+  Get,
+  Patch,
+  Delete,
+  Param,
   Query,
+  NotFoundException,
   Session,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user-dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dtos/update-user-dto';
-import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards/auth.guards';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 @Serialize(UserDto)
-@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -37,11 +34,6 @@ export class UsersController {
   whoAmI(@CurrentUser() user: User) {
     return user;
   }
-
-  // @Get('/whoami')
-  // whoAmI(@Session() session: any){
-  //   return this.usersService.findOne(session.userId)
-  // }
 
   @Post('/signout')
   signOut(@Session() session: any) {
@@ -64,9 +56,10 @@ export class UsersController {
 
   @Get('/:id')
   async findUser(@Param('id') id: string) {
-    console.log('handler is running');
     const user = await this.usersService.findOne(parseInt(id));
-    if (!user) throw new NotFoundException('no user found');
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
     return user;
   }
 
@@ -76,14 +69,12 @@ export class UsersController {
   }
 
   @Delete('/:id')
-  removeUser(@Param('id') id: number) {
-    return this.usersService.remove(id);
+  removeUser(@Param('id') id: string) {
+    return this.usersService.remove(parseInt(id));
   }
 
   @Patch('/:id')
   updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    const user = this.usersService.update(parseInt(id), body);
-    if (!user) throw new NotFoundException('use not found'); // ONLY works with HTTP protocols
-    return user;
+    return this.usersService.update(parseInt(id), body);
   }
 }

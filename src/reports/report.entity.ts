@@ -1,12 +1,10 @@
-import { Entity,Column, PrimaryGeneratedColumn, AfterInsert, AfterUpdate, AfterRemove } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Report{
+export class Report {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
-    price: number;
-
+  @Column()
+  price: number;
 }

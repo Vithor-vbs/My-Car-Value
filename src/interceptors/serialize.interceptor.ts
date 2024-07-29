@@ -1,29 +1,31 @@
-import { CallHandler, ExecutionContext, NestInterceptor, UseInterceptors } from "@nestjs/common";
-import { plainToClass, plainToInstance } from "class-transformer";
-import { map, Observable } from "rxjs";
+import {
+  UseInterceptors,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { plainToClass } from 'class-transformer';
 
-interface ClassConstructor{ // if you give me any class I will be satisfied
-    new (...args: any[]): {}
+interface ClassConstructor {
+  new (...args: any[]): {};
 }
 
-// creating custom decorator
-export function Serialize(dto: ClassConstructor){
-    return UseInterceptors( new SerializeInterceptor(dto))
+export function Serialize(dto: ClassConstructor) {
+  return UseInterceptors(new SerializeInterceptor(dto));
 }
 
-export class SerializeInterceptor implements NestInterceptor{
+export class SerializeInterceptor implements NestInterceptor {
+  constructor(private dto: any) {}
 
-    // Apply reusable behavior
-    constructor(private dto: any){}
-    
-    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-        //run something before a request is handled by the request handler
-        return next.handle().pipe(
-            map((data: any) => {
-                return plainToInstance(this.dto, data, {
-                    excludeExtraneousValues: true, // gets only the filds with @Expose()
-                })
-            }) 
-        )
-    }
+  intercept(context: ExecutionContext, handler: CallHandler): Observable<any> {
+    return handler.handle().pipe(
+      map((data: any) => {
+        return plainToClass(this.dto, data, {
+          excludeExtraneousValues: true,
+        });
+      }),
+    );
+  }
 }
