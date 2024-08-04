@@ -1,73 +1,115 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# My Car Value API Documentation
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Welcome to the My Car Value API documentation. This backend, built using NestJS, facilitates a network for clients looking to sell their cars.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Goal
 
-## Description
+The primary goal of the My Car Value project is to create a platform where clients can easily connect and sell their vehicles. This API provides the necessary backend functionality to support user authentication, vehicle report creation, and more.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technologies Used
 
-## Installation
+- **NestJS**
+- **TypeScript**
+- **SQLite**
+- **TypeORM**
 
-```bash
-$ npm install
+## Security Measures
+
+- **Session IDs and Cookies**: Used for maintaining user sessions securely.
+- **Salted and Hashed Passwords**: Ensures that passwords are stored securely.
+- **Interceptors**: Hide sensitive properties and provide additional security layers.
+
+## Authentication Endpoints
+
+### Create a new user
+
+```http
+POST http://localhost:3000/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test1@test.com",
+  "password": "12345"
+}
 ```
 
-## Running the app
+### Sign in as an existing user
 
-```bash
-# development
-$ npm run start
+POST http://localhost:3000/auth/signin
 
-# watch mode
-$ npm run start:dev
+Content-Type: application/json
 
-# production mode
-$ npm run start:prod
+```{
+  "email": "test@test.com",
+  "password": "12345"
+}
 ```
 
-## Test
+### Get the currently signed in user
 
-```bash
-# unit tests
-$ npm run test
+GET http://localhost:3000/auth/whoami
 
-# e2e tests
-$ npm run test:e2e
+### Sign out
 
-# test coverage
-$ npm run test:cov
+POST http://localhost:3000/auth/signout
+
+### Find a particular user with a given ID
+
+GET http://localhost:3000/auth/:id
+
+### Find all users with a given email
+
+GET http://localhost:3000/auth?email=
+
+### Delete a user given id
+
+DELETE http://localhost:3000/auth/:id
+
+### Update a user
+
+PATCH http://localhost:3000/auth/:id
+
+- Content-Type: application/json
+
+```
+{
+"password": "pw"
+}
 ```
 
-## Support
+## Report Endpoints
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Create a report
 
-## Stay in touch
+POST http://localhost:3000/reports
+Content-Type: application/json
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+{
+"make": "ford",
+"model": "mustang",
+"year": 1990,
+"mileage": 10000,
+"lng": 45,
+"lat": 45,
+"price": 20000
+}
+```
 
-## License
+### Approve an existing report
 
-Nest is [MIT licensed](LICENSE).
+PATCH http://localhost:3000/reports/:id
+
+Content-Type: application/json
+
+- Note: Only users with **admin** permissions can approve reports.
+
+```
+{
+"approved": true
+}
+```
+
+### Get an estimate for an existing vehicle
+
+GET http://localhost:3000/reports?make=toyota&model=corolla&lng=0&lat=0&mileage=10000&year=1989
